@@ -1,71 +1,48 @@
-name: Android Emulator Tests
+name: Android Tests
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
+    branches: [main]
 
 jobs:
-  android-emulator:
-    runs-on: ubuntu-latest
+  android-tests:
+    runs-on: macos-latest
+
+    env:
+      JAVA_HOME: /Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home
+      ANDROID_HOME: /Users/runner/Library/Android/sdk
+      ANDROID_SDK_ROOT: /Users/runner/Library/Android/sdk
+
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 21
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 30
-          build-tools: 33.0.2
-          ndk: 25.2.9519653
+    - name: Install Android SDK components
+      run: |
+        yes | sdkmanager "platform-tools" "platforms;android-30" "system-images;android-30;default;x86_64"
 
-      - name: Run Android Emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          target: default
-          arch: x86_64
-          emulator-boot-timeout: 300
-          force-avd-creation: true
-          disable-animations: true
+    - name: Start Android Emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 30
+        target: default
+        arch: x86_64
+        emulator-boot-timeout: 300
+        force-avd-creation: true
+        disable-animations: true
+        cores: 2
+        avd-name: test
+        emulator-port: 5554
+        emulator-options: -no-window -gpu host -no-snapshot -noaudio -no-boot-anim
 
-      - name: Wait for Emulator Boot
-        shell: bash
-        run: |
-          echo "Waiting for emulator to fully boot..."
-          timeout=300
-          elapsed=0
-          while [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != "1" ]; do
-            sleep 5
-            elapsed=$((elapsed+5))
-            if [ $elapsed -gt $timeout ]; then
-              echo "❌ Emulator failed to boot in $timeout seconds"
-              exit 1
-            fi
-          done
-          echo "✅ Emulator booted successfully!"
-          adb shell input keyevent 82  # unlock screen
+    - name: Run Android Tests
+      run: npm install && npm run test android connectToWiFi
 
-      - name: Disable animations (extra safety)
-        shell: bash
-        run: |
-          adb shell settings put global window_animation_scale 0
-          adb shell settings put global transition_animation_scale 0
-          adb shell settings put global animator_duration_scale 0
-
-      - name: Run Android Tests
-        shell: bash
-        run: |
-          npm install
-          npm run test android profile
-
-      - name: Terminate Emulator
-        if: always()
-        run: adb -s emulator-5554 emu kill
+    - name: Stop Emulator
+      run: adb -s emulator-5554 emu kill || true
