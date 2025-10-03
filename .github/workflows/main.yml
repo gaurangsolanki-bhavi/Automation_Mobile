@@ -1,13 +1,12 @@
-name: Android Test Pipeline
+name: Android Emulator Tests
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main]
+
 jobs:
   android-tests:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -16,19 +15,27 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 
+          node-version: 20
 
       - name: Install dependencies
         run: npm install
 
-      - name: Set up Java (for Android SDK / Appium)
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'  
+          java-version: '21'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Run Android Test (connectToWiFi)
-        run: npm run test android connectToWiFi
+      - name: Create and start emulator
+        run: |
+          sdkmanager --install "system-images;android-30;default;x86_64"
+          avdmanager create avd -n test_emulator -k "system-images;android-30;default;x86_64" --force
+          nohup emulator -avd test_emulator -no-window -no-audio -no-snapshot -gpu swiftshader_indirect &
+          adb wait-for-device
+          adb shell input keyevent 82
+
+      - name: Run Android Test
+        run: npm run test android profile
