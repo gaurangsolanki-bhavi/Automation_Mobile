@@ -1,0 +1,42 @@
+{
+    "SET_1": {
+      "url": "https://staging.ronspot.ie",
+      "admin_username": "Ronspot@AutomationTesting.com",
+      "admin_password": "Aa@12345678901",
+      "emp_user1": "akshay.kankodia@bhavitech.com",
+      "emp_user_Pass1": "Akshay@123",
+      "emp_user2": "akshaykankodiyabhavi@newbhavitechthree.com",
+      "emp_user_Pass2": "Akshay@123",
+      "MemberAppend":"/member/login/employee",
+      "ZONE":"Parking-NOMAP-AD",
+      "GRID_DESK_ZONE" :"Parking-Mix",
+      "MAP_CAR_ZONE" :"Parking-MAP-AD"
+
+    },
+
+    "SET_2": {
+      "url": "https://staging.ronspot.ie",
+      "admin_username": "akshaykankodiyabhavi@newbhavitechthree.com",
+      "admin_password": "Akshay@123",
+      "emp_user1": "akshay.kankodia@bhavitech.com",
+      "emp_user_Pass1": "Akky@8283",
+      "MemberAppend":"/member/login/employee",
+      "ZONE":"Parking-NOMAP-AD",
+      "GRID_DESK_ZONE" :"Parking-Mix",
+      "MAP_CAR_ZONE" :"Parking-MAP-AD"
+    },
+
+    "SET_3": {
+      "url": "https://staging.ronspot.ie",
+      "admin_username": "akshaykankodiyabhavi@newbhavitechthree.com",
+      "admin_password": "Akshay@123",
+      "emp_user1": "chintan.shastri@bhavitechnologies.com",
+      "emp_user_Pass1": "Cs@123456",
+      "MemberAppend":"/member/login/employee",
+      "ZONE":"Parking_Nomap",
+      "GRID_DESK_ZONE" :"Parking_A_Grid",
+      "MAP_CAR_ZONE" :"Parking_A_UploadMap"
+
+      
+    }
+  }
