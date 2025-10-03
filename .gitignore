@@ -1,0 +1,23 @@
+/node_modules
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/TestResults
+/TestData
+/TestData/Logs/
+/TestResults/Reports
+/TestResults/Videos
+/test-results
+/error-screenshots
+
+# Auth state
+storageState.json
+storageState.json
+
+/playwright.config.ts
+env-details.txt
+playwright.config.ts
+globalTestData.json
