@@ -3,8 +3,6 @@ name: Android Emulator Tests
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   android-tests:
@@ -32,12 +30,29 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      # 5️⃣ Run Android Emulator and tests
-      - name: Run Android Emulator and execute tests
+     # 5️⃣ Run Android Emulator and execute tests
+      - name: Run Android Emulator & Appium tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30                  # Android API level
           target: default                 # System image target
-          arch: x86_64                    # x86 emulator works with software acceleration
+          arch: x86_64                    # x86 emulator with software acceleration
           force-avd-creation: true        # Always create a fresh AVD
-          script: npm run test android profile
+          emulator-options: "-no-window -no-audio -no-snapshot -gpu swiftshader_indirect"
+          boot-timeout: 300               # Wait up to 5 minutes for boot
+          script: |
+            echo "Waiting for emulator to fully boot..."
+            timeout=300
+            elapsed=0
+            until [[ $(adb shell getprop sys.boot_completed | tr -d '\r') == "1" ]]; do
+              sleep 5
+              elapsed=$((elapsed+5))
+              if [[ $elapsed -gt $timeout ]]; then
+                echo "Emulator failed to boot in $timeout seconds"
+                exit 1
+              fi
+            done
+            echo "Emulator booted successfully!"
+            adb shell input keyevent 82
+            # Run your Appium tests
+            npm run test android profile
