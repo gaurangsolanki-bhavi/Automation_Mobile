@@ -12,11 +12,13 @@ jobs:
 
     env:
       ANDROID_SDK_ROOT: /Users/runner/Library/Android/sdk
-      PATH: /Users/runner/Library/Android/sdk/platform-tools:${PATH}
+      PATH: /Users/runner/Library/Android/sdk/platform-tools:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0   # Ensures Git is used instead of archive download
 
       - name: Set up Java
         uses: actions/setup-java@v3
