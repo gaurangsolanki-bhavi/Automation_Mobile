@@ -1,0 +1,10 @@
+{
+  "ZONE_SET1": {
+    "VEHICLE_TEST": "Vehicle007",
+    "STAGE": "test-data/XLXS/userData.xlsx",
+    "PREPROD": "test-data/XLXS/PreProduserData.xlsx",
+    "PROD": "test-data/XLXS/TestData.xlsx",
+    "XLXS_PATH": "./test-data/XLXS/userData.xlsx",
+    "IMGPATH": "./image.png"
+  }
+}

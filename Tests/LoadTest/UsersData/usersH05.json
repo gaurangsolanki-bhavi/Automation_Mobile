@@ -1,0 +1,97 @@
+[
+    {
+        "username": "hitesh.rathod@bhavitech.com",
+        "PasswordT": "66231a19709f141fa2c84b3017d648c6",
+        "PasswordN": "44c69df7a1b9e8adde823a5f42290f7c64b80f526b136ba13a9e1aa767adea29cace64f9aee54913f911b2c43ddb5dba150a69b8ff352eab571f63cfac1b60ee",
+        "Zones": [
+            2507,
+            2438,
+            2387,
+            2396,
+            2460,
+            2414,
+            2526,
+            2409,
+            2384,
+            3644
+        ],
+        "Guld": "STAGING_GULD",
+        "TeamLeaderGuld": "LOCAL_GULD"
+    },
+    {
+        "username": "hitesh.rathod@ronspotflexwork.com",
+        "PasswordT": "66231a19709f141fa2c84b3017d648c6",
+        "PasswordN": "44c69df7a1b9e8adde823a5f42290f7c64b80f526b136ba13a9e1aa767adea29cace64f9aee54913f911b2c43ddb5dba150a69b8ff352eab571f63cfac1b60ee",
+        "Zones": [
+            2384,
+            2414,
+            2396,
+            2438,
+            2460,
+            2409,
+            3644,
+            2526,
+            2387,
+            2507
+        ],
+        "Guld": "STAGING_GULD",
+        "TeamLeaderGuld": "LOCAL_GULD"
+    },
+    {
+        "username": "dhrumil.mathia@bhavitech.com",
+        "PasswordT": "0ea0a16552b3d285ffb818e30c106bdb",
+        "PasswordN": "0b02cb34abed4ceea89b0b786c09d3a9f3a443db931660de1a6a6ecfe0dc11934c699a60e910c5794f5817c9e3e82117ab612bbb3e29778e74b4d50e66f01012",
+        "Zones": [
+            2526,
+            2387,
+            2460,
+            2409,
+            2438,
+            2396,
+            2414,
+            2384,
+            2507,
+            3644
+        ],
+        "Guld": "STAGING_GULD",
+        "TeamLeaderGuld": "LOCAL_GULD"
+    },
+    {
+        "username": "dhrumil.mathia@Ronspotflexwork.com",
+        "PasswordT": "0ea0a16552b3d285ffb818e30c106bdb",
+        "PasswordN": "0b02cb34abed4ceea89b0b786c09d3a9f3a443db931660de1a6a6ecfe0dc11934c699a60e910c5794f5817c9e3e82117ab612bbb3e29778e74b4d50e66f01012",
+        "Zones": [
+            2409,
+            2460,
+            2384,
+            2526,
+            2396,
+            2438,
+            3644,
+            2387,
+            2507,
+            2414
+        ],
+        "Guld": "STAGING_GULD",
+        "TeamLeaderGuld": "LOCAL_GULD"
+    },
+    {
+        "username": "hemant.mahale@bhavitech.com",
+        "PasswordT": "ccb261ece4505e63dc83ca66c24be697",
+        "PasswordN": "26e9a3ad95ab1390bf03f407d5191150e329af6b2ccdf35382605db5170801fcb59caec44d35753fe7ba2acc9861be4a8459069fe0539f3e6b27884e1956af98",
+        "Zones": [
+            2396,
+            2414,
+            2460,
+            2384,
+            2387,
+            2526,
+            2507,
+            3644,
+            2438,
+            2409
+        ],
+        "Guld": "STAGING_GULD",
+        "TeamLeaderGuld": "LOCAL_GULD"
+    }
+]
