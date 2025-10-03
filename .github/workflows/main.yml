@@ -47,7 +47,7 @@ jobs:
         run: appium &
 
       - name: Run Android Tests
-        run: npm run test:android
+        run: npm run test android profile
 
       - name: Upload Allure Results (Optional)
         if: always()
