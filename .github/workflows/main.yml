@@ -34,11 +34,16 @@ jobs:
           sdkmanager --install "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;default;x86_64"
           echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-30;default;x86_64" --abi x86_64 --device "pixel"
 
-      - name: Start emulator
+      - name: Create and start emulator
         run: |
+          mkdir -p $HOME/.android/avd
+          export ANDROID_AVD_HOME=$HOME/.android/avd
+          sdkmanager --install "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;default;x86_64"
+          echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-30;default;x86_64" --abi x86_64 --device "pixel"
           $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-window -no-audio -no-snapshot -gpu swiftshader_indirect &
           adb wait-for-device
           adb shell input keyevent 82
+
 
       - name: Run Android Test
         run: npm run test android profile
