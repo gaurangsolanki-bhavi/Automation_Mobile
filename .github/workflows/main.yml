@@ -12,13 +12,13 @@ jobs:
 
     env:
       ANDROID_SDK_ROOT: /Users/runner/Library/Android/sdk
-      PATH: /Users/runner/Library/Android/sdk/platform-tools:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+      PATH: /Users/runner/Library/Android/sdk/platform-tools:/Users/runner/Library/Android/sdk/emulator:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0   # Ensures Git is used instead of archive download
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -41,7 +41,17 @@ jobs:
 
       - name: Install Android SDK components
         run: |
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "system-images;android-33;google_apis;x86_64" "emulator"
+
+      - name: Create and start Android emulator
+        run: |
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64" --force
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-window -no-audio -no-boot-anim &
+
+      - name: Wait for emulator to start
+        run: |
+          adb wait-for-device
+          adb shell input keyevent 82  # Unlock screen
 
       - name: Start Appium server
         run: appium &
