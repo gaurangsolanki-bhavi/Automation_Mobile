@@ -12,7 +12,7 @@ jobs:
 
     env:
       ANDROID_SDK_ROOT: /Users/runner/Library/Android/sdk
-      PATH: ${{ env.ANDROID_SDK_ROOT }}/platform-tools:$PATH
+      PATH: /Users/runner/Library/Android/sdk/platform-tools:${PATH}
 
     steps:
       - name: Checkout repository
@@ -34,18 +34,18 @@ jobs:
           npm install
           npm install -g appium
 
-      - name: Set up Android SDK
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+
+      - name: Install Android SDK components
         run: |
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
       - name: Start Appium server
-        run: |
-          appium &
+        run: appium &
 
       - name: Run Android Tests
-        run: |
-          npm run test:android
+        run: npm run test:android
 
       - name: Upload Allure Results (Optional)
         if: always()
