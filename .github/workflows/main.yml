@@ -1,72 +1,55 @@
-name: Android Tests
+name: Android Mobile Automation Tests
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
 
 jobs:
-  android-emulator-tests:
+  android-tests:
     runs-on: macos-latest
 
     env:
-      JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.8-9/x64
-      ANDROID_HOME: /usr/local/lib/android/sdk
-      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-      AVD_NAME: test
+      ANDROID_SDK_ROOT: /Users/runner/Library/Android/sdk
+      PATH: ${{ env.ANDROID_SDK_ROOT }}/platform-tools:$PATH
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up JDK 21
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          java-version: 21
-          distribution: temurin
+          distribution: 'temurin'
+          java-version: '21'
 
-      - name: Accept Android licenses
-        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
-      - name: Install SDK packages
+      - name: Install dependencies
         run: |
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "emulator" "platforms;android-30" "system-images;android-30;default;x86_64"
-
-      - name: Create AVD
-        run: |
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n $AVD_NAME -k "system-images;android-30;default;x86_64" --force
-
-      - name: Start Emulator
-        run: |
-          $ANDROID_HOME/emulator/emulator -avd $AVD_NAME \
-            -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -accel off &
-
-          echo "Waiting for emulator to start..."
-          $ANDROID_HOME/platform-tools/adb wait-for-device
-
-          # Wait until fully booted
-          boot_completed=""
-          timeout=0
-          while [[ "$boot_completed" != "1" && $timeout -lt 900 ]]; do
-            boot_completed=$($ANDROID_HOME/platform-tools/adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-            sleep 5
-            timeout=$((timeout + 5))
-          done
-
-          if [[ "$boot_completed" != "1" ]]; then
-            echo "❌ Emulator failed to boot in 15 minutes"
-            exit 1
-          fi
-
-      - name: Run Tests
-        run: |
-          # Wait a few seconds to ensure emulator is stable
-          sleep 10
-          # Replace with your test command
           npm install
-          npm run test android profile
+          npm install -g appium
 
-      - name: Stop Emulator
+      - name: Set up Android SDK
         run: |
-          $ANDROID_HOME/platform-tools/adb -s emulator-5554 emu kill || true
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
+      - name: Start Appium server
+        run: |
+          appium &
+
+      - name: Run Android Tests
+        run: |
+          npm run test:android
+
+      - name: Upload Allure Results (Optional)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-results
+          path: allure-results
