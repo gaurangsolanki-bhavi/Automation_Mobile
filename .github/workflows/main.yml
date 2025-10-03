@@ -19,53 +19,24 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          api-level: 30
-          build-tools: 33.0.2
-          ndk: 25.2.9519653
+          node-version: 20
 
-      - name: Run Android Emulator
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Android Emulator + Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
-          target: default
+          target: google_apis
           arch: x86_64
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: 600
           force-avd-creation: true
           disable-animations: true
-
-      - name: Wait for Emulator Boot
-        shell: bash
-        run: |
-          echo "Waiting for emulator to fully boot..."
-          timeout=300
-          elapsed=0
-          while [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != "1" ]; do
-            sleep 5
-            elapsed=$((elapsed+5))
-            if [ $elapsed -gt $timeout ]; then
-              echo "❌ Emulator failed to boot in $timeout seconds"
-              exit 1
-            fi
-          done
-          echo "✅ Emulator booted successfully!"
-          adb shell input keyevent 82  # unlock screen
-
-      - name: Disable animations (extra safety)
-        shell: bash
-        run: |
-          adb shell settings put global window_animation_scale 0
-          adb shell settings put global transition_animation_scale 0
-          adb shell settings put global animator_duration_scale 0
-
-      - name: Run Android Tests
-        shell: bash
-        run: |
-          npm install
-          npm run test android profile
-
-      - name: Terminate Emulator
-        if: always()
-        run: adb -s emulator-5554 emu kill
+          script: |
+            adb devices
+            adb shell input keyevent 82
+            npm run test android profile
