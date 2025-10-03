@@ -29,11 +29,14 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Create and start emulator
+      - name: Install emulator + system image
         run: |
-          sdkmanager --install "system-images;android-30;default;x86_64"
+          sdkmanager --install "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;default;x86_64"
           echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-30;default;x86_64" --abi x86_64 --device "pixel"
-          nohup emulator -avd test_emulator -no-window -no-audio -no-snapshot -gpu swiftshader_indirect &
+
+      - name: Start emulator
+        run: |
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-window -no-audio -no-snapshot -gpu swiftshader_indirect &
           adb wait-for-device
           adb shell input keyevent 82
 
