@@ -50,17 +50,15 @@ jobs:
           emulator-boot-timeout: 2400
           disable-linux-hw-accel: true
           script: |
+            # Always try to stop recording at the end, even if tests fail
+            trap 'kill -INT $(cat screenrecord.pid) 2>/dev/null || true; sleep 2; adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true' EXIT
+
             # Start screen recording
             adb shell screenrecord /sdcard/testvideo.mp4 &
             echo $! > screenrecord.pid
 
             # Run Android tests
             npm run test android profile
-
-            # Stop screen recording
-            kill -INT $(cat screenrecord.pid) || true
-            sleep 2
-            adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
 
       - name: Upload test video
         if: always()
