@@ -30,24 +30,31 @@ jobs:
 
       - name: Create and start emulator
         run: |
-          echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64" --force
-          nohup emulator -avd test_emulator -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -wipe-data &
-          adb wait-for-device
-          boot_completed=""
-          retries=0
-          echo "Waiting for emulator to boot..."
-          while [ "$boot_completed" != "1" ] && [ $retries -lt 120 ]; do
-            sleep 5
-            boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-            echo "Boot status: $boot_completed"
-            retries=$((retries+1))
-          done
-          if [ "$boot_completed" != "1" ]; then
-            echo "❌ Emulator failed to boot within timeout"
-            exit 1
-          fi
-          echo "✅ Emulator booted successfully!"
-          adb shell input keyevent 82
+            echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64" --force
+            
+            export ANDROID_HOME=$ANDROID_SDK_ROOT
+            export PATH=$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/platform-tools:$PATH
+            
+            nohup emulator -avd test_emulator -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -wipe-data &
+            adb wait-for-device
+            
+            boot_completed=""
+            retries=0
+            echo "Waiting for emulator to boot..."
+            while [ "$boot_completed" != "1" ] && [ $retries -lt 120 ]; do
+              sleep 5
+              boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+              echo "Boot status: $boot_completed"
+              retries=$((retries+1))
+            done
+            
+            if [ "$boot_completed" != "1" ]; then
+              echo "❌ Emulator failed to boot within timeout"
+              exit 1
+            fi
+            
+            echo "✅ Emulator booted successfully!"
+            adb shell input keyevent 82
 
       - name: Start screen recording
         run: |
