@@ -47,7 +47,7 @@ jobs:
           emulator-options: -no-window -no-audio -no-snapshot -accel off -gpu swiftshader_indirect
           cores: 2
           avd-name: test
-          emulator-boot-timeout: 2400
+          emulator-boot-timeout: 120000
           disable-linux-hw-accel: true
           script: |
             # Always try to stop recording at the end, even if tests fail
