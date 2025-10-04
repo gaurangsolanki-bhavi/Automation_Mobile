@@ -1,79 +1,72 @@
-name: Android Mobile Automation Tests
+name: Android Tests
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
 
 jobs:
   android-tests:
-    runs-on: macos-latest
-
-    env:
-      ANDROID_SDK_ROOT: /Users/runner/Library/Android/sdk
-      PATH: /Users/runner/Library/Android/sdk/platform-tools:/Users/runner/Library/Android/sdk/emulator:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
-          fetch-depth: 0
+          distribution: temurin
+          java-version: 21
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '21'
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
+      - name: Install required SDK packages
         run: |
-          npm install
-          npm install -g appium
+          sdkmanager --install "system-images;android-33;google_apis;x86_64"
+          sdkmanager --install "platform-tools" "platforms;android-33" "emulator"
+          sdkmanager --licenses
 
-      - name: Accept Android SDK licenses
-        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
-
-      - name: Install Android SDK components
+      - name: Create and start emulator
         run: |
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
-            "platform-tools" \
-            "platforms;android-33" \
-            "build-tools;33.0.2" \
-            "system-images;android-33;google_apis;arm64-v8a" \
-            "emulator"
-
-      - name: Create and start ARM64 Android emulator
-        run: |
-          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;arm64-v8a" --force
-          $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-window -no-audio -no-boot-anim -wipe-data &
-
-      - name: Wait for emulator to fully boot
-        run: |
+          echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64" --force
+          nohup emulator -avd test_emulator -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -wipe-data &
+          adb wait-for-device
           boot_completed=""
+          retries=0
           echo "Waiting for emulator to boot..."
-          while [ "$boot_completed" != "1" ]; do
+          while [ "$boot_completed" != "1" ] && [ $retries -lt 120 ]; do
             sleep 5
-            boot_completed=$(adb -e shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
             echo "Boot status: $boot_completed"
+            retries=$((retries+1))
           done
-          echo "Emulator booted successfully!"
-          adb shell input keyevent 82  # Unlock screen
+          if [ "$boot_completed" != "1" ]; then
+            echo "❌ Emulator failed to boot within timeout"
+            exit 1
+          fi
+          echo "✅ Emulator booted successfully!"
+          adb shell input keyevent 82
 
-      - name: Start Appium server
-        run: appium &
+      - name: Start screen recording
+        run: |
+          adb shell screenrecord /sdcard/testvideo.mp4 &
+          echo $! > screenrecord.pid
 
-      - name: Run Android Tests
-        run: npm run test:android
+      - name: Run Android tests
+        run: npm run test android profile
 
-      - name: Upload Allure Results (Optional)
+      - name: Stop screen recording
+        if: always()
+        run: |
+          kill -INT $(cat screenrecord.pid) || true
+          sleep 2
+          adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
+
+      - name: Upload test video
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results
-          path: allure-results
+          name: android-test-video
+          path: testvideo.mp4
