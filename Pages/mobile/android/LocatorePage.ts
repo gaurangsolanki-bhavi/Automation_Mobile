@@ -14,8 +14,8 @@ class AndroidLocatorPage {
   get radioEmployeeOption() {
     const locator1 = $('//android.widget.TextView[@text="I agree to the "]');
     const locator2 = $('//android.webkit.WebView[@text="Employee | Login"]/android.view.View/android.view.View/android.view.View[1]/android.view.View[3]/android.view.View/android.widget.TextView');
-    return locator1.isExisting().then(exists => exists ? locator1 : locator2);
-
+    const locator3 = $('//android.view.View[@text="I agree to the "]');
+    return locator1.isExisting().then(exists => exists ? locator1 : (locator2.isExisting().then(exists2 => exists2 ? locator2 : locator3)));
   }
 
   get confirmEmailBtn() {
@@ -29,7 +29,8 @@ class AndroidLocatorPage {
   get continueWithEmailBtn() {
     const locator1 = $('//android.widget.TextView[@text="Continue with Email"]');
     const locator2 = $('//android.view.View[@text="Continue with Email"]');
-    return locator1.isExisting().then(exists => exists ? locator1 : locator2);
+    const locator3 = $('//android.view.View[@content-desc="Continue with Email"]');
+    return locator1.isExisting().then(exists => exists ? locator1 : (locator2.isExisting().then(exists2 => exists2 ? locator2 : locator3)));
   }
 
   get continueWithGmailBtn() {
@@ -58,6 +59,12 @@ class AndroidLocatorPage {
     const locator1 = $('//android.view.View[@text="Click here"]');
     const locator2 = $('//android.widget.ImageButton[@content-desc="Confirm"]');
     return locator1.isExisting().then(exists => exists ? locator1 : locator2);
+  }
+  get savePasswordPopupFirefox() {
+    return $('//android.widget.Button[@resource-id="org.mozilla.firefox:id/save_cancel"]');
+  }
+  get btnClickHereFirefox() {
+    return $('//android.view.View[@text="Click here"]');
   }
   get popupNoVehiclesHeader() {
     return $('//android.widget.TextView[contains(@text,"Hold on")]');
