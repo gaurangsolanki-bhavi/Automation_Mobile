@@ -1,18 +1,17 @@
 name: Android Tests
- 
 on:
   push:
     branches: [ main ]
   pull_request:
- 
+
 jobs:
   android-tests:
     runs-on: ubuntu-latest
- 
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
- 
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -20,13 +19,13 @@ jobs:
           
       - name: Install dependencies
         run: npm install
- 
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
- 
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -36,7 +35,7 @@ jobs:
             emulator
             platforms;android-29
             system-images;android-29;default;x86_64
- 
+
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -51,19 +50,37 @@ jobs:
           disable-linux-hw-accel: true
           script: |
             # Always try to stop recording at the end, even if tests fail
-            trap 'kill -INT $(cat screenrecord.pid) 2>/dev/null || true; sleep 2; adb pull testvideo.mp4 testvideo.mp4 || true' EXIT
- 
+            trap 'kill -INT $(cat screenrecord.pid) 2>/dev/null || true; sleep 2; adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true' EXIT
+
             # Start screen recording
             adb shell screenrecord /sdcard/testvideo.mp4 &
             echo $! > screenrecord.pid
- 
-            # Wait for emulator to fully boot
-            echo "Waiting 6 minutes for emulator to stabilize..."
-            sleep 360
- 
+
+            echo "⏳ Waiting for emulator to boot completely..."
+            adb wait-for-device
+
+            # Wait until boot completed
+            until adb shell getprop sys.boot_completed | grep -m 1 "1"; do
+              echo "Still waiting for sys.boot_completed..."
+              sleep 10
+            done
+
+            # Wait until boot animation is finished
+            until adb shell getprop service.bootanim.exit | grep -m 1 "1"; do
+              echo "Still waiting for boot animation..."
+              sleep 10
+            done
+
+            echo "✅ Emulator boot completed."
+
+            # Unlock screen if locked
+            echo "🔓 Checking and unlocking screen..."
+            adb shell input keyevent 82 || true
+            adb shell input swipe 300 1000 300 500 || true
+
             # Run Android tests
             npm run test android profile
- 
+
       - name: Upload test video
         if: always()
         uses: actions/upload-artifact@v4
