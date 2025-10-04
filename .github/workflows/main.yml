@@ -1,18 +1,18 @@
 name: Android Tests
-
+ 
 on:
   push:
     branches: [ main ]
   pull_request:
-
+ 
 jobs:
   android-tests:
     runs-on: ubuntu-latest
-
+ 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+ 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -20,13 +20,13 @@ jobs:
           
       - name: Install dependencies
         run: npm install
-
+ 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
-
+ 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -36,7 +36,7 @@ jobs:
             emulator
             platforms;android-29
             system-images;android-29;default;x86_64
-
+ 
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -47,43 +47,23 @@ jobs:
           emulator-options: -no-window -no-audio -no-snapshot -accel off -gpu swiftshader_indirect
           cores: 2
           avd-name: test
-          emulator-boot-timeout: 200000
+          emulator-boot-timeout: 220000
           disable-linux-hw-accel: true
           script: |
-            set -e
-
-            # Wait until device is fully booted
-            echo "⏳ Waiting for emulator to boot completely..."
-            adb wait-for-device
-            boot_completed=""
-            while [ -z "$boot_completed" ] || [ "$boot_completed" != "1" ]; do
-              sleep 5
-              boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-              echo "Device boot status: $boot_completed"
-            done
-            echo "✅ Emulator is fully booted."
-
+            # Always try to stop recording at the end, even if tests fail
+            trap 'kill -INT $(cat screenrecord.pid) 2>/dev/null || true; sleep 2; adb pull testvideo.mp4 testvideo.mp4 || true' EXIT
+ 
             # Start screen recording
-            echo "🎥 Starting screen recording..."
-            adb shell screenrecord /sdcard/testvideo.mp4 &
+            adb shell screenrecord testvideo.mp4 &
             echo $! > screenrecord.pid
-
-            # Run tests
-            echo "🚀 Running Android tests..."
-            npm run test android profile || true
-
-            # Stop screen recording safely
-            echo "🛑 Stopping screen recording..."
-            if [ -f screenrecord.pid ]; then
-              kill -INT $(cat screenrecord.pid) || true
-              rm -f screenrecord.pid
-            fi
-            sleep 2
-
-            # Pull video if it exists
-            echo "⬇️ Pulling test video..."
-            adb pull /sdcard/testvideo.mp4 testvideo.mp4 || echo "⚠️ No video file found"
-
+ 
+            # Wait for emulator to fully boot
+            echo "Waiting 3 minutes for emulator to stabilize..."
+            sleep 300
+ 
+            # Run Android tests
+            npm run test android profile
+ 
       - name: Upload test video
         if: always()
         uses: actions/upload-artifact@v4
