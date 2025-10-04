@@ -41,11 +41,16 @@ jobs:
 
       - name: Install Android SDK components
         run: |
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "system-images;android-33;google_apis;x86_64" "emulator"
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "platforms;android-33" \
+            "build-tools;33.0.2" \
+            "system-images;android-33;google_apis;arm64-v8a" \
+            "emulator"
 
-      - name: Create and start Android emulator
+      - name: Create and start ARM64 Android emulator
         run: |
-          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64" --force
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;arm64-v8a" --force
           $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-window -no-audio -no-boot-anim -wipe-data &
 
       - name: Wait for emulator to fully boot
