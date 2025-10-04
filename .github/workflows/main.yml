@@ -32,20 +32,18 @@ jobs:
 
       - name: Install emulator, system image & create AVD
         run: |
-          # Make sure AVD directory exists
           mkdir -p $HOME/.android/avd
           export ANDROID_AVD_HOME=$HOME/.android/avd
 
-          # Install required SDK packages
-          sdkmanager --install "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;default;x86_64"
+          sdkmanager --install "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;default;arm64-v8a"
 
-          # Create AVD (auto-answer "no" to custom hardware prompt)
-          echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-30;default;x86_64" --abi x86_64 --device "pixel"
+          echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-30;default;arm64-v8a" --device "pixel" --force
 
-          # Start emulator in headless mode
-          $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-window -no-audio -no-snapshot -gpu swiftshader_indirect &
+          $ANDROID_SDK_ROOT/emulator/emulator \
+            -avd test_emulator \
+            -no-window -no-audio -no-snapshot \
+            -accel off &
           
-          # Wait until device is ready
           adb wait-for-device
           adb shell input keyevent 82
 
