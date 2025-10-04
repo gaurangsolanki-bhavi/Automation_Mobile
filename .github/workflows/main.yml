@@ -47,7 +47,7 @@ jobs:
           emulator-options: -no-window -no-audio -no-snapshot -accel off -gpu swiftshader_indirect
           cores: 2
           avd-name: test
-          emulator-boot-timeout: 120000
+          emulator-boot-timeout: 200000
           disable-linux-hw-accel: true
           script: |
             # Always try to stop recording at the end, even if tests fail
@@ -56,6 +56,10 @@ jobs:
             # Start screen recording
             adb shell screenrecord /sdcard/testvideo.mp4 &
             echo $! > screenrecord.pid
+
+            # Wait for emulator to fully boot
+            echo "Waiting 3 minutes for emulator to stabilize..."
+            sleep 240
 
             # Run Android tests
             npm run test android profile
