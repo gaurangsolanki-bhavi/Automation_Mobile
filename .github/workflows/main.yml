@@ -30,32 +30,30 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Launch Android Emulator
+      - name: Launch Android Emulator & Run Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
-          target: default
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
           emulator-options: -no-window -no-audio -no-snapshot -accel off -gpu swiftshader_indirect
           cores: 2
-          wait-for-boot: true
+          avd-name: test
+          emulator-boot-timeout: 600
+          disable-linux-hw-accel: true
+          script: |
+            # Start screen recording
+            adb shell screenrecord /sdcard/testvideo.mp4 &
+            echo $! > screenrecord.pid
 
-      - name: Start screen recording
-        run: |
-          adb shell screenrecord /sdcard/testvideo.mp4 &
-          echo $! > screenrecord.pid
+            # Run Android tests
+            npm run test android profile
 
-      - name: Run Android tests
-        run: npm run test android profile
-
-      - name: Stop screen recording
-        if: always()
-        run: |
-          kill -INT $(cat screenrecord.pid) || true
-          sleep 2
-          adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
+            # Stop screen recording
+            kill -INT $(cat screenrecord.pid) || true
+            sleep 2
+            adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
 
       - name: Upload test video
         if: always()
