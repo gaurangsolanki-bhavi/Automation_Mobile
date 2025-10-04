@@ -171,6 +171,12 @@ class LoginActionsAndroid extends Actions {
 
     console.log('Handling confirmation popup');
     await this.waitForElementAndClick(await Locatore.clickHereButtonOrOk);
+    await browser.pause(3000);
+    const isSavePasswordPopupVisible = await (await Locatore.savePasswordPopupFirefox).isDisplayed().catch(() => false);
+    if (isSavePasswordPopupVisible) {
+      await this.waitForElementAndClick(await Locatore.savePasswordPopupFirefox);
+    }
+    await this.waitForElementAndClick(await Locatore.btnClickHereFirefox);
     console.log("--------------------------------------------------------------------");
 
   }
