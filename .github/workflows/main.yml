@@ -9,6 +9,10 @@ jobs:
   android-tests:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash  # 👈 Force Bash, fixes "unexpected end of file" error
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -50,7 +54,6 @@ jobs:
           emulator-boot-timeout: 300000
           disable-linux-hw-accel: true
           script: |
-            #!/bin/bash
             set -e
 
             # Always stop recording at the end
