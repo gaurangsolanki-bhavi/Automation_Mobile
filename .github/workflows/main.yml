@@ -72,10 +72,6 @@ jobs:
             # Optional: Unlock screen
             adb shell input keyevent 82
 
-            # Wait for emulator to fully boot
-            echo "Waiting 3 minutes for emulator to stabilize..."
-            sleep 180
-
             # Run Android tests
             npm run test android profile
 
@@ -91,4 +87,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-test-video
-          path: testvideo.mp4
+          path: /sdcard/testvideo.mp4
