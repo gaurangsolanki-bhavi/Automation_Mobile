@@ -35,7 +35,7 @@ class LoginActionsAndroid extends Actions {
         await driver.execute('mobile: activateApp', {
           appId: 'ie.jemstone.ronspot',
         });
-        await browser.pause(50000);
+        await driver.pause(50000);
         const loginBtn = await (await Locatore.loginBtn).isDisplayed().catch(() => false);
         let user: any = null;
         if (loginBtn) {
