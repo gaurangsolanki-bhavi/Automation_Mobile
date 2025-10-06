@@ -56,10 +56,13 @@ jobs:
             echo "⏳ Waiting 20 seconds for emulator to initialize..."
             sleep 20
 
-            # Wait until /sdcard is available
             echo "⏳ Waiting for /sdcard to be available..."
-            until adb shell 'test -d /sdcard && echo ready' | grep -q ready; do
-              echo "Waiting 5s..."
+            while true; do
+              result=$(adb shell 'if [ -d /sdcard ]; then echo ready; fi')
+              if [[ "$result" == "ready" ]]; then
+                break
+              fi
+              echo "Waiting 5 seconds..."
               sleep 5
             done
             echo "/sdcard is ready."
