@@ -9,10 +9,6 @@ jobs:
   android-tests:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        shell: bash  # 👈 Force Bash, fixes "unexpected end of file" error
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -54,35 +50,37 @@ jobs:
           emulator-boot-timeout: 300000
           disable-linux-hw-accel: true
           script: |
-            set -e
+            bash -c '
+              set -e
 
-            # Always stop recording at the end
-            trap 'kill -INT $(cat screenrecord.pid) 2>/dev/null || true; sleep 2; adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true' EXIT
+              # Always stop recording at the end
+              trap "kill -INT \$(cat screenrecord.pid) 2>/dev/null || true; sleep 2; adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true" EXIT
 
-            echo "⏳ Waiting for emulator to boot completely..."
-            adb wait-for-device
+              echo "⏳ Waiting for emulator to boot completely..."
+              adb wait-for-device
 
-            until adb shell getprop sys.boot_completed | grep -m 1 "1"; do
-              echo "Still waiting for sys.boot_completed..."
-              sleep 10
-            done
+              until adb shell getprop sys.boot_completed | grep -m 1 "1"; do
+                echo "Still waiting for sys.boot_completed..."
+                sleep 10
+              done
 
-            until adb shell getprop service.bootanim.exit | grep -m 1 "1"; do
-              echo "Still waiting for boot animation..."
-              sleep 10
-            done
+              until adb shell getprop service.bootanim.exit | grep -m 1 "1"; do
+                echo "Still waiting for boot animation..."
+                sleep 10
+              done
 
-            echo "✅ Emulator booted. Unlocking screen..."
-            adb shell input keyevent 82 || true
-            adb shell input swipe 300 1000 300 500 || true
-            sleep 5
+              echo "✅ Emulator booted. Unlocking screen..."
+              adb shell input keyevent 82 || true
+              adb shell input swipe 300 1000 300 500 || true
+              sleep 5
 
-            echo "🎥 Starting screen recording..."
-            adb shell screenrecord /sdcard/testvideo.mp4 &
-            echo $! > screenrecord.pid
+              echo "🎥 Starting screen recording..."
+              adb shell screenrecord /sdcard/testvideo.mp4 &
+              echo $! > screenrecord.pid
 
-            echo "🧪 Running Android tests..."
-            npm run test android profile
+              echo "🧪 Running Android tests..."
+              npm run test android profile
+            '
 
       - name: Upload test video
         if: always()
@@ -90,6 +88,3 @@ jobs:
         with:
           name: android-test-video
           path: testvideo.mp4
-
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.6.2
