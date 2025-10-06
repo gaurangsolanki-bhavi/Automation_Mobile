@@ -50,21 +50,17 @@ jobs:
           emulator-boot-timeout: 300000
           disable-linux-hw-accel: true
           script: |
-            bash -euo pipefail <<'EOF'
             echo "⏳ Waiting for emulator to fully boot..."
-
             adb wait-for-device
 
-            echo "Checking boot completion..."
-            for i in {1..30}; do
-              BOOT_STATUS=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-              if [ "$BOOT_STATUS" = "1" ]; then
-                echo "✅ Emulator boot completed."
-                break
-              fi
-              echo "Still waiting for sys.boot_completed... ($i/30)"
-              sleep 10
-            done
+            echo "Checking boot status..."
+            BOOT_STATUS=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            if [ "$BOOT_STATUS" != "1" ]; then
+              echo "Emulator not yet fully booted. Waiting extra 60 seconds..."
+              sleep 60
+            else
+              echo "✅ Emulator boot completed."
+            fi
 
             echo "Unlocking emulator screen..."
             adb shell input keyevent 82 || true
@@ -82,7 +78,6 @@ jobs:
             kill -INT $(cat screenrecord.pid) 2>/dev/null || true
             sleep 3
             adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
-            EOF
 
       - name: Upload test video
         if: always()
