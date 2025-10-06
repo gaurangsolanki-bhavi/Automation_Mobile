@@ -74,9 +74,14 @@ jobs:
               adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
             fi
 
-      - name: Upload test video
-        if: always()
+      - name: 📥 Pull video from emulator
+        run: |
+          mkdir -p artifacts
+          adb pull /sdcard/testvideo.mp4 artifacts/testvideo.mp4 || echo "⚠️ No video found on device."
+
+      - name: ⬆️ Upload test video
         uses: actions/upload-artifact@v4
         with:
           name: android-test-video
-          path: /sdcard/testvideo.mp4
+          path: artifacts/testvideo.mp4
+          if-no-files-found: warn
