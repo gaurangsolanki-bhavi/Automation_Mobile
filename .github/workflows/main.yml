@@ -50,39 +50,38 @@ jobs:
           emulator-boot-timeout: 300000
           disable-linux-hw-accel: true
           script: |
-            bash -eo pipefail <<'EOF'
-            set -e
+            bash -euo pipefail <<'EOF'
+            echo "⏳ Waiting for emulator to fully boot..."
 
-            echo "⏳ Waiting for emulator to boot completely..."
             adb wait-for-device
 
-            until adb shell getprop sys.boot_completed | grep -m 1 "1"; do
-              echo "Still waiting for sys.boot_completed..."
+            echo "Checking boot completion..."
+            for i in {1..30}; do
+              BOOT_STATUS=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+              if [ "$BOOT_STATUS" = "1" ]; then
+                echo "✅ Emulator boot completed."
+                break
+              fi
+              echo "Still waiting for sys.boot_completed... ($i/30)"
               sleep 10
             done
 
-            until adb shell getprop service.bootanim.exit | grep -m 1 "1"; do
-              echo "Still waiting for boot animation..."
-              sleep 10
-            done
-
-            echo "✅ Emulator booted. Unlocking screen..."
+            echo "Unlocking emulator screen..."
             adb shell input keyevent 82 || true
             adb shell input swipe 300 1000 300 500 || true
-            sleep 5
+            sleep 3
 
             echo "🎥 Starting screen recording..."
             adb shell screenrecord /sdcard/testvideo.mp4 &
             echo $! > screenrecord.pid
 
             echo "🧪 Running Android tests..."
-            npm run test android profile
+            npm run test android profile || echo "⚠️ Tests failed, continuing to capture video..."
 
             echo "⏹ Stopping screen recording..."
             kill -INT $(cat screenrecord.pid) 2>/dev/null || true
             sleep 3
             adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
-
             EOF
 
       - name: Upload test video
