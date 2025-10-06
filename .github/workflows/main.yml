@@ -56,17 +56,6 @@ jobs:
             echo "⏳ Waiting 20 seconds for emulator to initialize..."
             sleep 20
 
-            echo "⏳ Waiting for /sdcard to be available..."
-            while true; do
-              result=$(adb shell 'if [ -d /sdcard ]; then echo ready; fi')
-              if [[ "$result" == "ready" ]]; then
-                break
-              fi
-              echo "Waiting 5 seconds..."
-              sleep 5
-            done
-            echo "/sdcard is ready."
-
             # Start screen recording
             adb shell screenrecord /sdcard/testvideo.mp4 &
             echo $! > screenrecord.pid
