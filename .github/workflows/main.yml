@@ -37,7 +37,7 @@ jobs:
             platforms;android-29
             system-images;android-29;default;x86_64
 
-      - name: Launch Emulator & Run Tests
+      - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
@@ -50,34 +50,16 @@ jobs:
           emulator-boot-timeout: 300000
           disable-linux-hw-accel: true
           script: |
-            echo "⏳ Waiting for emulator to fully boot..."
-            adb wait-for-device
-
-            echo "Checking boot status..."
-            BOOT_STATUS=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-            if [ "$BOOT_STATUS" != "1" ]; then
-              echo "Emulator not yet fully booted. Waiting extra 60 seconds..."
-              sleep 60
-            else
-              echo "✅ Emulator boot completed."
-            fi
-
-            echo "Unlocking emulator screen..."
-            adb shell input keyevent 82 || true
-            adb shell input swipe 300 1000 300 500 || true
-            sleep 3
-
-            echo "🎥 Starting screen recording..."
+            # Always try to stop recording at the end, even if tests fail
+            trap 'kill -INT $(cat screenrecord.pid) 2>/dev/null || true; sleep 2; adb pull /sdcard/testvideo.mp4 || true' EXIT
+            # Start screen recording
             adb shell screenrecord /sdcard/testvideo.mp4 &
             echo $! > screenrecord.pid
-
-            echo "🧪 Running Android tests..."
-            npm run test android profile || echo "⚠️ Tests failed, continuing to capture video..."
-
-            echo "⏹ Stopping screen recording..."
-            kill -INT $(cat screenrecord.pid) 2>/dev/null || true
-            sleep 3
-            adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
+            # Wait for emulator to fully boot
+            echo "Waiting 4 minutes for emulator to stabilize..."
+            sleep 240
+            # Run Android tests
+            npm run test android profile
 
       - name: Upload test video
         if: always()
