@@ -155,16 +155,16 @@ class LoginActionsAndroid extends Actions {
     await browser.pause(2000);
     console.log('Clicking confirm email button');
     await this.waitForElementAndClick(await Locatore.confirmEmailBtn);
-    await browser.pause(2000);
+    await browser.pause(15000);
     console.log('Clicking continue with email button');
     await this.waitForElementAndClick(await Locatore.continueWithEmailBtn);
-    await browser.pause(1000);
+    await browser.pause(3000);
     console.log('Entering password');
     await this.clearAndSendKey(await Locatore.passwordInput, password);
 
     console.log('Hide Keyboard');
     await this.hideKeyboardIfVisible();
-    await browser.pause(2000);
+    await browser.pause(3000);
     console.log('Clicking login submit button');
     await this.waitForElementAndClick(await Locatore.loginSubmitBtn);
     await browser.pause(5000);
