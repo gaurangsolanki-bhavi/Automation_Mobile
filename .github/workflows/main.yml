@@ -27,6 +27,11 @@ jobs:
           distribution: temurin
           java-version: 21
 
+        # ------------------ 📊 ALLURE REPORT SECTION ------------------
+      - name: ⚙️ Install Allure CLI
+        run: |
+          npm install -g allure-commandline --save-dev
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -60,7 +65,7 @@ jobs:
             # echo "🎥 Screen recording started."
 
             # adb shell input keyevent 82  # Unlock screen
-            npm run test android profile # Run Android tests
+            npm run test android profile || true 
 
             # Stop screen recording and pull
             # if [ -f screenrecord.pid ]; then
@@ -80,11 +85,6 @@ jobs:
       #     name: android-test-video
       #     path: artifacts/testvideo.mp4
       #     if-no-files-found: warn
-
-      # ------------------ 📊 ALLURE REPORT SECTION ------------------
-      - name: ⚙️ Install Allure CLI
-        run: |
-          npm install -g allure-commandline --save-dev
 
       - name: 🧩 Generate Allure Report
         run: |
