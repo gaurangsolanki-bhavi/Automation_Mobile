@@ -52,8 +52,8 @@ jobs:
           script: |
             set -e
 
-            echo "⏳ Waiting 4 minutes for emulator to initialize..."
-            sleep 240
+            echo "⏳ Waiting 1 minutes for emulator to initialize..."
+            sleep 60
 
             adb shell screenrecord /sdcard/testvideo.mp4 &
             echo $! > screenrecord.pid
