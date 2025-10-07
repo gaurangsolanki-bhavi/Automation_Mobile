@@ -57,7 +57,7 @@ export const config = {
       'appium:noReset': true,
       'appium:autoGrantPermissions': true,
       'appium:ignoreHiddenApiPolicyError': true,
-      'appium:uiautomator2ServerLaunchTimeout': 60000,
+      'appium:uiautomator2ServerLaunchTimeout': 120000,
       'appium:adbExecTimeout': 60000,                  // Wait longer for adb commands
       'appium:disableWindowAnimation': true     
     },
