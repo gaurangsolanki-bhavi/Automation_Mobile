@@ -51,7 +51,7 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -no-audio
           cores: 4
-          memory: 6144
+          # memory: 6144
           avd-name: test
           emulator-boot-timeout: 300000
           #disable-linux-hw-accel: true
