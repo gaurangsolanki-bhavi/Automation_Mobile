@@ -99,16 +99,17 @@ jobs:
           path: allure-report
           if-no-files-found: warn
 
-      # (Optional) 📤 Publish Allure Report to GitHub Pages
+        # (Optional) 📤 Publish Allure Report to GitHub Pages
       - name: 🚀 Deploy Allure Report to GitHub Pages
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
+          destination_dir: "allure-reports/${{ github.run_id }}" # <-- unique folder per run
 
       - name: 🖥️ Print Allure Report URL
         if: github.ref == 'refs/heads/main'
         run: |
           echo "✅ Allure Report published successfully!"
-          echo "🔗 URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "🔗 URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/allure-reports/${{ github.run_id }}/"
