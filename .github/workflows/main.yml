@@ -35,25 +35,26 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          api-level: 29
+          api-level: 34
           components: |
             platform-tools
             emulator
-            platforms;android-29
-            system-images;android-29;default;x86_64
+            platforms;android-34
+            system-images;android-34;default;x86_64
 
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: 34   
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
-          emulator-options: -no-window -no-audio -no-snapshot -accel off -gpu swiftshader_indirect
-          cores: 2
+          emulator-options: -no-window -no-audio
+          cores: 4
+          memory: 6144
           avd-name: test
           emulator-boot-timeout: 300000
-          disable-linux-hw-accel: true
+          #disable-linux-hw-accel: true
           script: |
             set -e
 
