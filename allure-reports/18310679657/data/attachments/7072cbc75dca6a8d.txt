@@ -1,0 +1,4 @@
+[VIDEO] Started recording for test: Test_001: Verify Profile Page Loads Correctly and Navigation Menu Work
+
+Clicking on 'Profile' icon...
+[VIDEO] Saved video for test "Test_001: Verify Profile Page Loads Correctly and Navigation Menu Work" → /home/runner/work/Automation_Mobile/Automation_Mobile/videos/Test_001_Verify_Profile_Page_Loads_Correctly_and_Navigation_Menu_Work.mp4
