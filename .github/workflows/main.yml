@@ -55,31 +55,31 @@ jobs:
             echo "⏳ Waiting 1 minutes for emulator to initialize..."
             sleep 60
 
-            adb shell screenrecord /sdcard/testvideo.mp4 &
-            echo $! > screenrecord.pid
-            echo "🎥 Screen recording started."
+            # adb shell screenrecord /sdcard/testvideo.mp4 &
+            # echo $! > screenrecord.pid
+            # echo "🎥 Screen recording started."
 
-            adb shell input keyevent 82  # Unlock screen
+            # adb shell input keyevent 82  # Unlock screen
             npm run test android profile # Run Android tests
 
             # Stop screen recording and pull
-            if [ -f screenrecord.pid ]; then
-              kill -INT $(cat screenrecord.pid) || true
-              sleep 2
-              adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
-            fi
+            # if [ -f screenrecord.pid ]; then
+            #   kill -INT $(cat screenrecord.pid) || true
+            #   sleep 2
+            #   adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
+            # fi
 
-      - name: 📥 Pull video from emulator
-        run: |
-          mkdir -p artifacts
-          adb pull /sdcard/testvideo.mp4 artifacts/testvideo.mp4 || echo "⚠️ No video found on device."
+      # - name: 📥 Pull video from emulator
+      #   run: |
+      #     mkdir -p artifacts
+      #     adb pull /sdcard/testvideo.mp4 artifacts/testvideo.mp4 || echo "⚠️ No video found on device."
 
-      - name: ⬆️ Upload test video
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-test-video
-          path: artifacts/testvideo.mp4
-          if-no-files-found: warn
+      # - name: ⬆️ Upload test video
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: android-test-video
+      #     path: artifacts/testvideo.mp4
+      #     if-no-files-found: warn
 
       # ------------------ 📊 ALLURE REPORT SECTION ------------------
       - name: ⚙️ Install Allure CLI
