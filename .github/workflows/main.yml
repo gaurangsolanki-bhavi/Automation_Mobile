@@ -49,7 +49,7 @@ jobs:
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
-          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -accel off
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -accel off -snapshot default_boot
           cores: 6
           avd-name: test
           emulator-boot-timeout: 300000
@@ -60,7 +60,8 @@ jobs:
             echo "⏳ Waiting 1 minutes for emulator to initialize..."
             sleep 60
 
-            npm run test android profile || true 
+            echo "🚀 Running Android tests..."
+            npm run test android profile
 
       - name: 🧩 Generate Allure Report
         run: |
