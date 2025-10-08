@@ -28,6 +28,9 @@ jobs:
           java-version: 21
 
       # ------------------ ANDROID SDK ------------------
+      - name: Accept SDK Licenses
+        run: yes | sdkmanager --licenses
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
