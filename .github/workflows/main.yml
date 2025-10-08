@@ -31,44 +31,58 @@ jobs:
       - name: ⚙️ Install Allure CLI
         run: |
           npm install -g allure-commandline --save-dev
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          api-level: 35
+          api-level: 34
           components: |
             platform-tools
             emulator
-            platforms;android-35
-            system-images;android-35;default;x86_64
-
+            platforms;android-34
+            system-images;android-34;default;x86_64
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: 34
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
-          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -accel off -snapshot default_boot
-          cores: 6
+          emulator-options: -no-window -no-audio -no-snapshot -accel off -gpu swiftshader_indirect
           avd-name: test
           emulator-boot-timeout: 300000
           disable-linux-hw-accel: true
           script: |
             set -e
-
             echo "⏳ Waiting 1 minutes for emulator to initialize..."
             sleep 60
+            # adb shell screenrecord /sdcard/testvideo.mp4 &
+            # echo $! > screenrecord.pid
+            # echo "🎥 Screen recording started."
+            # adb shell input keyevent 82  # Unlock screen
+            npm run test android profile || true 
+            # Stop screen recording and pull
+            # if [ -f screenrecord.pid ]; then
+            #   kill -INT $(cat screenrecord.pid) || true
+            #   sleep 2
+            #   adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
+            # fi
+      # - name: 📥 Pull video from emulator
+      #   run: |
+      #     mkdir -p artifacts
+      #     adb pull /sdcard/testvideo.mp4 artifacts/testvideo.mp4 || echo "⚠️ No video found on device."
 
-            echo "🚀 Running Android tests..."
-            npm run test android profile
+      # - name: ⬆️ Upload test video
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: android-test-video
+      #     path: artifacts/testvideo.mp4
+      #     if-no-files-found: warn
 
       - name: 🧩 Generate Allure Report
         run: |
           mkdir -p allure-results
           mkdir -p allure-report
           npx allure generate allure-results --clean -o allure-report || echo "⚠️ No allure-results found."
-
       - name: ⬆️ Upload Allure Report (as artifact)
         uses: actions/upload-artifact@v4
         with:
