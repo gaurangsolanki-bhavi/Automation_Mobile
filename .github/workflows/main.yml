@@ -35,20 +35,17 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          cmdline-tools-version: latest
-          packages: |
-            cmdline-tools;latest
+          api-level: 35
+          components: |
             platform-tools
-            build-tools;35.0.0
             emulator
             platforms;android-35
-            system-images;android-35;google_apis;x86_64
+            system-images;android-35;default;x86_64
 
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
-          target: google_apis
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
@@ -62,8 +59,7 @@ jobs:
 
             echo "⏳ Waiting 1 minutes for emulator to initialize..."
             sleep 60
-            
-            # adb shell input keyevent 82  # Unlock screen
+
             npm run test android profile || true 
 
       - name: 🧩 Generate Allure Report
