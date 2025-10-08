@@ -43,18 +43,19 @@ jobs:
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: 28
+          target: google_apis
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
-          emulator-options: -no-window -no-audio -no-snapshot -accel off -gpu swiftshader_indirect
+          emulator-options: -no-window -no-snapshot -gpu swiftshader_indirect
           avd-name: test
-          emulator-boot-timeout: 300000
+          emulator-boot-timeout: 600000
           disable-linux-hw-accel: true
           script: |
             set -e
-            echo "⏳ Waiting 1 minutes for emulator to initialize..."
-            sleep 60
+            echo "⏳ Waiting 2 minutes for emulator to initialize..."
+            sleep 120
             # adb shell screenrecord /sdcard/testvideo.mp4 &
             # echo $! > screenrecord.pid
             # echo "🎥 Screen recording started."
