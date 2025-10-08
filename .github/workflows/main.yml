@@ -27,9 +27,10 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      # ------------------ ANDROID SDK ------------------
-      - name: Accept SDK Licenses
-        run: yes | sdkmanager --licenses
+        # ------------------ 📊 ALLURE REPORT SECTION ------------------
+      - name: ⚙️ Install Allure CLI
+        run: |
+          npm install -g allure-commandline --save-dev
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -43,7 +44,6 @@ jobs:
             platforms;android-35
             system-images;android-35;google_apis;x86_64
 
-      # ------------------ EMULATOR ------------------
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -52,42 +52,41 @@ jobs:
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
-          cores: 6
-          ram-size: 2048M
-          sdcard-path-or-size: 512M
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -accel off
-          emulator-boot-timeout: 600000
+          cores: 6
+          avd-name: test
+          emulator-boot-timeout: 300000
+          disable-linux-hw-accel: true
           script: |
             set -e
-            echo "⏳ Waiting 60s for emulator to initialize..."
-            sleep 60
-            adb devices
-            adb shell input keyevent 82 || true
-            npm run test android profile || true
 
-      # ------------------ ALLURE REPORT ------------------
-      - name: ⚙️ Install Allure CLI
-        run: npm install -g allure-commandline --save-dev
+            echo "⏳ Waiting 1 minutes for emulator to initialize..."
+            sleep 60
+            
+            # adb shell input keyevent 82  # Unlock screen
+            npm run test android profile || true 
 
       - name: 🧩 Generate Allure Report
         run: |
-          mkdir -p allure-results allure-report
+          mkdir -p allure-results
+          mkdir -p allure-report
           npx allure generate allure-results --clean -o allure-report || echo "⚠️ No allure-results found."
 
-      - name: ⬆️ Upload Allure Report (artifact)
+      - name: ⬆️ Upload Allure Report (as artifact)
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report
           if-no-files-found: warn
 
+        # (Optional) 📤 Publish Allure Report to GitHub Pages
       - name: 🚀 Deploy Allure Report to GitHub Pages
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
-          destination_dir: "allure-reports/${{ github.run_id }}"
+          destination_dir: "allure-reports/${{ github.run_id }}" # <-- unique folder per run
 
       - name: 🖥️ Print Allure Report URL
         if: github.ref == 'refs/heads/main'
