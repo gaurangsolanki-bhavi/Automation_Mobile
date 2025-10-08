@@ -34,16 +34,16 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          api-level: 34
+          api-level: 29
           components: |
             platform-tools
             emulator
-            platforms;android-34
-            system-images;android-34;default;x86_64
+            platforms;android-29
+            system-images;android-29;default;x86_64
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 29
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
