@@ -33,28 +33,28 @@ jobs:
           npm install -g allure-commandline --save-dev
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v3.2.2
         with:
-          api-level: 34
+          api-level: 36
           components: |
             platform-tools
             emulator
-            platforms;android-34
-            system-images;android-34;default;x86_64
+            platforms;android-36
+            system-images;android-36;default;x86_64
 
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34   
+          api-level: 36   
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
-          emulator-options: -no-window -no-audio
-          cores: 4
-          # memory: 6144
+          emulator-options: -no-window -no-audio -gpu host
+          cores: 8
+          memory: 12288
           avd-name: test
           emulator-boot-timeout: 300000
-          #disable-linux-hw-accel: true
+          disable-linux-hw-accel: true
           script: |
             set -e
 
