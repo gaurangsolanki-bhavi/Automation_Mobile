@@ -1,0 +1,2 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","73040","Test_001: Verify Profile Page Loads Correctly and Navigation Menu Work","","Wed Oct 08 10:17:43 UTC 2025","broken","Wed Oct 08 10:18:56 UTC 2025","","Profile Page Test @Android","",""
