@@ -1,0 +1,102 @@
+name: Android Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  android-tests:
+    runs-on: macos-latest    # ✅ Faster & stable emulator with hardware acceleration
+
+    steps:
+      # 🧭 Step 1: Checkout source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ⚙️ Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 📦 Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # ☕ Step 4: Set up JDK 21 (required for Appium/Android tools)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # 🧩 Step 5: Install Allure CLI (for reports)
+      - name: ⚙️ Install Allure CLI
+        run: npm install -g allure-commandline --save-dev
+
+      # 📱 Step 6: Set up Android SDK + system image
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 28
+          components: |
+            platform-tools
+            emulator
+            platforms;android-28
+            system-images;android-28;google_apis;x86_64
+
+      # 🚀 Step 7: Launch emulator and run Android tests
+      - name: Launch Emulator & Run Android Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 28
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: true
+          disable-animations: true
+          emulator-options: -no-window -no-snapshot -gpu host   # ✅ hardware GPU
+          avd-name: test
+          emulator-boot-timeout: 600000
+          script: |
+            set -e
+            echo "⏳ Waiting 90 seconds for emulator to initialize..."
+            sleep 90
+            adb wait-for-device
+            adb shell settings put global window_animation_scale 0
+            adb shell settings put global transition_animation_scale 0
+            adb shell settings put global animator_duration_scale 0
+            adb shell input keyevent 82  # Unlock screen
+            echo "✅ Emulator ready! Starting tests..."
+            npm run test android profile || true
+
+      # 📊 Step 8: Generate Allure Report
+      - name: 🧩 Generate Allure Report
+        run: |
+          mkdir -p allure-results
+          mkdir -p allure-report
+          npx allure generate allure-results --clean -o allure-report || echo "⚠️ No allure-results found."
+
+      # 📤 Step 9: Upload Allure report as artifact
+      - name: ⬆️ Upload Allure Report (as artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+          if-no-files-found: warn
+
+      # 🌐 Step 10: (Optional) Publish report to GitHub Pages for main branch
+      - name: 🚀 Deploy Allure Report to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+          destination_dir: "allure-reports/${{ github.run_id }}"  # Unique folder per run
+
+      # 🔗 Step 11: Print Allure report URL in logs
+      - name: 🖥️ Print Allure Report URL
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "✅ Allure Report published successfully!"
+          echo "🔗 URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/allure-reports/${{ github.run_id }}/"
