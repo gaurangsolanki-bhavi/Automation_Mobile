@@ -13,18 +13,18 @@ jobs:
       ANDROID_HOME: ${{ github.workspace }}/android-sdk
 
     steps:
-      # 🧭 Checkout repository
+      # 🧭 Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ☕ Set up JDK 21
+      # ☕ JDK 21
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
 
-      # ⚙️ Set up Node.js
+      # ⚙️ Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -33,40 +33,39 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # 🧩 Install Allure CLI
+      # 🧩 Allure CLI
       - name: Install Allure CLI
         run: npm install -g allure-commandline --save-dev
 
       # 📦 Install Android Command Line Tools
-      - name: Install Android SDK and Tools
+      - name: Install Android SDK
         run: |
           echo "📦 Downloading Android Command Line Tools..."
           mkdir -p $ANDROID_HOME/cmdline-tools
           cd $ANDROID_HOME/cmdline-tools
-          curl -o tools.zip https://dl.google.com/android/repository/commandlinetools-mac-11076708_latest.zip
-          unzip tools.zip
+          curl -sS -o tools.zip https://dl.google.com/android/repository/commandlinetools-mac-11076708_latest.zip
+          unzip -q tools.zip
           mv cmdline-tools latest
           rm tools.zip
 
-          echo "✅ Setting up PATH..."
-          echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH" >> $GITHUB_ENV
+          echo "✅ SDK tools installed successfully."
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH" >> $GITHUB_ENV
 
-      # 🧱 Accept licenses & install SDKs
+      # 🧱 Accept Licenses & Install SDK Packages
       - name: Accept Licenses & Install SDK Packages
         run: |
-          source $GITHUB_ENV
-          yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
-          yes | sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "emulator" "platforms;android-28" "system-images;android-28;google_apis;x86_64"
+          yes | sdkmanager --licenses
+          yes | sdkmanager "platform-tools" "emulator" "platforms;android-28" "system-images;android-28;google_apis;x86_64"
 
-      # 📱 Start Emulator and Run Tests
+      # 📱 Start Emulator & Run Tests
       - name: Launch Emulator & Run Tests
         run: |
-          source $GITHUB_ENV
           echo "🧱 Creating AVD..."
           echo no | avdmanager create avd -n test -k "system-images;android-28;google_apis;x86_64" --force
 
           echo "📱 Starting Emulator..."
-          nohup emulator -avd test -no-window -no-audio -no-snapshot -gpu swiftshader_indirect > /dev/null 2>&1 &
+          nohup emulator -avd test -no-window -no-audio -no-snapshot -gpu swiftshader_indirect >/dev/null 2>&1 &
 
           echo "⏳ Waiting for Emulator to boot..."
           adb wait-for-device
@@ -86,7 +85,7 @@ jobs:
           echo "🚀 Running Android tests..."
           npm run test android profile || true
 
-      # 📊 Generate Allure Report
+      # 📊 Allure Report
       - name: Generate Allure Report
         run: |
           mkdir -p allure-results
@@ -100,7 +99,7 @@ jobs:
           name: allure-report
           path: allure-report
 
-      # 🌐 (Optional) Deploy to GitHub Pages
+      # 🌐 Deploy to GitHub Pages (Optional)
       - name: Deploy Allure Report to GitHub Pages
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
