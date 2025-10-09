@@ -55,19 +55,29 @@ jobs:
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
-          emulator-options: -no-window -no-snapshot -gpu host   # ✅ hardware GPU
+          emulator-options: -no-window -no-snapshot -gpu host
           avd-name: test
           emulator-boot-timeout: 600000
           script: |
             set -e
-            echo "⏳ Waiting 90 seconds for emulator to initialize..."
-            sleep 90
-            adb wait-for-device
+            echo "📱 Starting Android emulator..."
+            
+            # Wait until emulator is visible to adb
+            echo "⏳ Waiting for emulator device to be detected..."
+            timeout 300 bash -c 'until adb devices | grep -m 1 "emulator-"; do sleep 2; done'
+            
+            echo "✅ Emulator detected. Waiting for full boot..."
+            timeout 300 bash -c 'until [[ "$(adb shell getprop sys.boot_completed 2>/dev/null)" == "1" ]]; do sleep 2; done'
+            
+            #echo "🔓 Unlocking screen..."
+            #adb shell input keyevent 82 || true
+      
+            echo "⚙️ Disabling animations..."
             adb shell settings put global window_animation_scale 0
             adb shell settings put global transition_animation_scale 0
             adb shell settings put global animator_duration_scale 0
-            adb shell input keyevent 82  # Unlock screen
-            echo "✅ Emulator ready! Starting tests..."
+      
+            echo "✅ Emulator fully booted. Running tests..."
             npm run test android profile || true
 
       # 📊 Step 8: Generate Allure Report
