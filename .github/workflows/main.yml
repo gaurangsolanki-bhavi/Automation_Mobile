@@ -93,6 +93,41 @@ jobs:
           echo "🚀 Running Android tests..."
           npm run test android profile || true
 
+     name: Android Tests (Fast)
+
+on: [push, pull_request]
+
+jobs:
+  android:
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: npm ci
+      - run: npm install -g allure-commandline --save-dev
+
+      - name: Run Android Emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: arm64-v8a
+          profile: pixel_9
+          script: |
+            echo "🚀 Running Android tests..."
+            npm run test android profile || true
+
       # ---------- Allure Reporting ----------
       - name: 📊 Generate Allure Report
         run: |
