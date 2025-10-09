@@ -11,21 +11,20 @@ jobs:
 
     env:
       ANDROID_HOME: ${{ github.workspace }}/android-sdk
-      PATH: ${{ github.workspace }}/android-sdk/cmdline-tools/latest/bin:${{ github.workspace }}/android-sdk/platform-tools:${{ github.workspace }}/android-sdk/emulator:${{ env.PATH }}
 
     steps:
-      # 🧭 Checkout code
+      # 🧭 Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ☕ Java setup
+      # ☕ Set up JDK 21
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
 
-      # ⚙️ Node setup
+      # ⚙️ Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -38,7 +37,7 @@ jobs:
       - name: Install Allure CLI
         run: npm install -g allure-commandline --save-dev
 
-      # 📦 Install Android Command Line Tools & SDK
+      # 📦 Install Android Command Line Tools
       - name: Install Android SDK and Tools
         run: |
           echo "📦 Downloading Android Command Line Tools..."
@@ -48,19 +47,26 @@ jobs:
           unzip tools.zip
           mv cmdline-tools latest
           rm tools.zip
-          
-          echo "✅ Installing SDK packages..."
+
+          echo "✅ Setting up PATH..."
+          echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH" >> $GITHUB_ENV
+
+      # 🧱 Accept licenses & install SDKs
+      - name: Accept Licenses & Install SDK Packages
+        run: |
+          source $GITHUB_ENV
           yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
           yes | sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "emulator" "platforms;android-28" "system-images;android-28;google_apis;x86_64"
 
       # 📱 Start Emulator and Run Tests
       - name: Launch Emulator & Run Tests
         run: |
+          source $GITHUB_ENV
           echo "🧱 Creating AVD..."
           echo no | avdmanager create avd -n test -k "system-images;android-28;google_apis;x86_64" --force
 
           echo "📱 Starting Emulator..."
-          nohup $ANDROID_HOME/emulator/emulator -avd test -no-window -no-audio -no-snapshot -gpu host > /dev/null 2>&1 &
+          nohup emulator -avd test -no-window -no-audio -no-snapshot -gpu swiftshader_indirect > /dev/null 2>&1 &
 
           echo "⏳ Waiting for Emulator to boot..."
           adb wait-for-device
