@@ -20,8 +20,8 @@ export const config = {
   // ======================
   user: SAUCE_USERNAME,
   key: SAUCE_ACCESS_KEY,
-  region: SAUCE_REGION,
-  hostname: 'ondemand.saucelabs.com',
+  region: SAUCE_REGION || 'eu-central-1',
+  hostname: 'ondemand.eu-central-1.saucelabs.com',
   port: 443,
   protocol: 'https',
   path: '/wd/hub',
