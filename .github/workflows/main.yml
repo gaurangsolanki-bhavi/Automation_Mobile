@@ -26,6 +26,11 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
+      - name: 🔍 Debug Sauce variables
+        run: |
+          echo "Username: $SAUCE_USERNAME"
+          echo "Access key length: ${#SAUCE_ACCESS_KEY}"
+
       - name: 🧪 Run Android Tests on Sauce Labs
         run: npm run test:android:sauce android profile
 
@@ -34,4 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: SauceLab-Reports
-          path: ./TestResults/Reports || ./MobileReports || ./results
+          path: |
+            ./TestResults/Reports
+            ./MobileReports
+            ./results
