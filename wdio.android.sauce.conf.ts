@@ -72,6 +72,7 @@ export const config = {
       'sauce',
       {
         sauceConnect: false, // true if you use Sauce Connect for private networks
+        region: 'us'
       },
     ],
   ],
