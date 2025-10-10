@@ -27,7 +27,7 @@ jobs:
         run: npm ci
 
       - name: 🧪 Run Android Tests on Sauce Labs
-        run: npm run test:android:profile
+        run: npm run test:android:sauce android profile
 
       - name: 📤 Upload test reports (if available)
         if: always()
