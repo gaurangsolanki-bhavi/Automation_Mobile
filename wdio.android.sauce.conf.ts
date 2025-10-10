@@ -3,7 +3,7 @@ import { config as shared } from './wdio.shared.conf';
 // ===== Sauce Credentials =====
 const SAUCE_USERNAME = process.env.SAUCE_USERNAME;
 const SAUCE_ACCESS_KEY = process.env.SAUCE_ACCESS_KEY;
-const SAUCE_REGION = process.env.SAUCE_REGION || 'us'; // or 'eu'
+const SAUCE_REGION = process.env.SAUCE_REGION || 'eu'; // or 'eu'
 
 // ===== App & Device Info from Environment (set in GitHub Actions or manually) =====
 const APP = process.env.APP || 'sauce-storage:app-debug.apk';
@@ -72,7 +72,7 @@ export const config = {
       'sauce',
       {
         sauceConnect: false, // true if you use Sauce Connect for private networks
-        region: 'us'
+        region: 'eu'
       },
     ],
   ],
