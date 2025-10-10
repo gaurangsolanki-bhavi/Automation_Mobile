@@ -1,89 +1,37 @@
-name: Android Tests (Fast)
+name: Android Tests on Sauce Labs
 
 on:
   push:
+    branches: [ main ]
   pull_request:
 
 jobs:
-  android:
-    runs-on: macos-latest
+  android-tests:
+    runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    env:
+      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+      SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+
     steps:
-      - name: Checkout repository
+      - name: 🧭 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
+      - name: 📦 Install dependencies
+        run: npm ci
 
-      - name: Install dependencies
-        run: |
-          npm ci
-          npm install -g allure-commandline --save-dev
+      - name: 🧪 Run Android Tests on Sauce Labs
+        run: npm run test:android:sauce
 
-      - name: Start Android Emulator
-        uses: ReactiveCircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          target: google_apis
-          arch: x86_64
-          profile: pixel_6
-          emulator-options: -no-window -no-audio -gpu swiftshader_indirect -no-snapshot
-          disable-animations: true
-          script: |
-            echo "🚀 Waiting for emulator to boot..."
-            adb wait-for-device
-            booted=false
-            timeout=600  # 10 minutes
-            start_time=$(date +%s)
-            while [ $(($(date +%s) - start_time)) -lt $timeout ]; do
-              if adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; then
-                echo "✅ Emulator booted successfully!"
-                booted=true
-                break
-              fi
-              sleep 5
-            done
-            if [ "$booted" = false ]; then
-              echo "❌ Emulator failed to boot within timeout"
-              exit 1
-            fi
-
-            echo "🚀 Running Android tests..."
-            npm run test android profile || true
-
-      # ---------- Allure Reporting ----------
-      - name: 📊 Generate Allure Report
-        run: |
-          mkdir -p allure-results
-          mkdir -p allure-report
-          npx allure generate allure-results --clean -o allure-report || echo "⚠️ No allure-results found."
-
-      - name: 📤 Upload Allure Report
+      - name: 📤 Upload test reports (if available)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report
-          path: allure-report
-
-      # ---------- Optional GitHub Pages ----------
-      - name: 🌐 Deploy Allure Report to GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
-          destination_dir: allure-reports/${{ github.run_id }}
-
-      - name: 🖥️ Print Allure Report URL
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "✅ Allure Report published successfully!"
-          echo "🔗 URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/allure-reports/${{ github.run_id }}/"
+          name: SauceLab-Reports
+          path: ./TestResults/Reports || ./MobileReports || ./results
