@@ -62,16 +62,16 @@ export const config = {
       'appium:disableWindowAnimation': true     
     },
   ],
-  services: [
-    [
-      'appium',
-      {
-        command: 'appium',
-        args: {
-          address: '127.0.0.1',
-          port: 4723,
-        },
-      },
-    ],
-  ],
+  // services: [
+  //   [
+  //     'appium',
+  //     {
+  //       command: 'appium',
+  //       args: {
+  //         address: '127.0.0.1',
+  //         port: 4723,
+  //       },
+  //     },
+  //   ],
+  // ],
 };
