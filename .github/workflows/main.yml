@@ -11,7 +11,6 @@ jobs:
     timeout-minutes: 30
 
     env:
-      # ⚠️ Static Sauce credentials (use your real values)
       SAUCE_USERNAME: gaurang.solanki-601b8
       SAUCE_ACCESS_KEY: c57bc15a-b977-400a-a1be-031b197a6f75
       SAUCE_REGION: eu
@@ -30,15 +29,6 @@ jobs:
 
       - name: 📦 Install dependencies
         run: npm ci
-
-      - name: 🔍 Debug Sauce variables
-        run: |
-          echo "Using Sauce Labs Credentials:"
-          echo "Username: $SAUCE_USERNAME"
-          echo "Access key length: ${#SAUCE_ACCESS_KEY}"
-          echo "Region: $SAUCE_REGION"
-          echo "App: $APP"
-          echo "Device: $DEVICE_NAME"
 
       - name: 🧪 Run Android Tests on Sauce Labs
         run: npm run test:android:sauce android profile
