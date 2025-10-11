@@ -22,10 +22,10 @@ export const config = {
   user: 'gaurang.solanki-601b8',   // ✅ your Sauce Labs username (without oauth- prefix)
   key: 'c57bc15a-b977-400a-a1be-031b197a6f75', // ✅ your Sauce Labs access key
   region: 'eu',
-  hostname: 'ondemand.eu-central-1.saucelabs.com',
-  port: 443,
-  protocol: 'https',
-  path: '/wd/hub',
+  // hostname: 'ondemand.eu-central-1.saucelabs.com',
+  // port: 443,
+  // protocol: 'https',
+  // path: '/wd/hub',
 
   //
   // ==================
