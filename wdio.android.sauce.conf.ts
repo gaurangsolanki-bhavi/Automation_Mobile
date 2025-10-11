@@ -1,8 +1,8 @@
 import { config as shared } from './wdio.shared.conf';
 
 // ===== Sauce Credentials =====
-const SAUCE_USERNAME = process.env.SAUCE_USERNAME;
-const SAUCE_ACCESS_KEY = process.env.SAUCE_ACCESS_KEY;
+// const SAUCE_USERNAME = process.env.SAUCE_USERNAME;
+// const SAUCE_ACCESS_KEY = process.env.SAUCE_ACCESS_KEY;
 
 // ===== App & Device Info from Environment (set in GitHub Actions or manually) =====
 const APP = process.env.APP || 'sauce-storage:app-debug.apk';
@@ -17,8 +17,10 @@ export const config = {
   // ======================
   // Sauce Labs Connection
   // ======================
-  user: SAUCE_USERNAME,
-  key: SAUCE_ACCESS_KEY,
+  // user: SAUCE_USERNAME,
+  // key: SAUCE_ACCESS_KEY,
+  user: 'gaurang.solanki-601b8',   // ✅ your Sauce Labs username (without oauth- prefix)
+  key: 'c57bc15a-b977-400a-a1be-031b197a6f75', // ✅ your Sauce Labs access key
   region: 'eu',
   hostname: 'ondemand.eu-central-1.saucelabs.com',
   port: 443,
