@@ -8,12 +8,12 @@
     "test:admin": "powershell -Command \"npx playwright test Tests/admin/ --reporter=dot | ForEach-Object { $_ -replace '\\e\\[[\\d;]*[A-Za-z]', '' } | Tee-Object -FilePath TestData/Logs/test-execution-$(Get-Date -Format 'yyyy-MM-dd-HH-mm-ss').txt\"",
     "runload": "node ./Tests/LoadTest/LoadUtils/runload.js",
     "test:web": "npx playwright test",
-    "test": "node run-mobile-test.js",
+    "test": "node test.js",
     "test:all": "npm run test:web && npm run test:mobile",
     "allure:generate": "allure generate allure-results --clean -o allure-report",
     "allure:open": "allure open allure-report",
     "clean:allure": "rm -rf allure-results allure-report",
-    "test:android:sauce": "npx wdio run ./wdio.android.sauce.conf.ts"
+    "test:android:sauce": "node test.sauce.js"
   },
   "author": "Akshay Kankodiya",
   "license": "ISC",

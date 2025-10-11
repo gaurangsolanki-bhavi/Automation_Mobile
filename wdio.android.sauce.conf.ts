@@ -20,7 +20,7 @@ export const config = {
   // ======================
   user: SAUCE_USERNAME,
   key: SAUCE_ACCESS_KEY,
-  region: SAUCE_REGION || 'eu-central-1',
+  region: SAUCE_REGION || 'eu',
   hostname: 'ondemand.eu-central-1.saucelabs.com',
   port: 443,
   protocol: 'https',
@@ -30,7 +30,7 @@ export const config = {
   // ==================
   // Test Specifications
   // ==================
-  specs: ['./Tests/mobile/android/**/*.ts'],
+  specs: [],
   maxInstances: 1,
 
   //
