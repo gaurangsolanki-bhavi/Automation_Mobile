@@ -33,13 +33,15 @@ jobs:
           npm install -g allure-commandline --save-dev
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        
         with:
-          api-level: 28
+          api-level: 33
           components: |
             platform-tools
             emulator
-            platforms;android-28
-            system-images;android-28;default;x86_64
+            platforms;android-33
+            system-images;android-33;google_apis;x86_64
+
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -56,28 +58,6 @@ jobs:
             set -e
             echo "⏳ Waiting 2 minutes for emulator to initialize..."
             sleep 120
-            # adb shell screenrecord /sdcard/testvideo.mp4 &
-            # echo $! > screenrecord.pid
-            # echo "🎥 Screen recording started."
-            # adb shell input keyevent 82  # Unlock screen
-            npm run test android profile || true 
-            # Stop screen recording and pull
-            # if [ -f screenrecord.pid ]; then
-            #   kill -INT $(cat screenrecord.pid) || true
-            #   sleep 2
-            #   adb pull /sdcard/testvideo.mp4 testvideo.mp4 || true
-            # fi
-      # - name: 📥 Pull video from emulator
-      #   run: |
-      #     mkdir -p artifacts
-      #     adb pull /sdcard/testvideo.mp4 artifacts/testvideo.mp4 || echo "⚠️ No video found on device."
-
-      # - name: ⬆️ Upload test video
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: android-test-video
-      #     path: artifacts/testvideo.mp4
-      #     if-no-files-found: warn
 
       - name: 🧩 Generate Allure Report
         run: |
