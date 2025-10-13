@@ -47,7 +47,8 @@ jobs:
           arch: x86_64
           force-avd-creation: true
           disable-animations: true
-          emulator-options: -no-window -no-snapshot -gpu swiftshader_indirect
+          emulator-options: -no-audio -no-snapshot -accel off -gpu swiftshader_indirect
+          cores: 4
           avd-name: test
           emulator-boot-timeout: 600000
           disable-linux-hw-accel: true
