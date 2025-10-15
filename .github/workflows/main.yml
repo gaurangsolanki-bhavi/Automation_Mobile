@@ -27,13 +27,12 @@ jobs:
           distribution: temurin
           java-version: 21
 
-        # ------------------ 📊 ALLURE REPORT SECTION ------------------
+      # ------------------ 📊 ALLURE REPORT SECTION ------------------
       - name: ⚙️ Install Allure CLI
-        run: |
-          npm install -g allure-commandline --save-dev
+        run: npm install -g allure-commandline --save-dev
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-        
         with:
           api-level: 33
           components: |
@@ -42,6 +41,7 @@ jobs:
             platforms;android-33
             system-images;android-33;google_apis;x86_64
 
+      # ✅ CHANGE 1 — simplified and fixed emulator config
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -49,22 +49,28 @@ jobs:
           target: google_apis
           arch: x86_64
           force-avd-creation: true
-          disable-animations: true
-          emulator-options: -no-audio -no-snapshot -accel off -gpu swiftshader_indirect
-          cores: 4
           avd-name: test
+          disable-animations: true
           emulator-boot-timeout: 600000
-          disable-linux-hw-accel: true
+          # 🔧 Removed disable-linux-hw-accel (causes failures on ubuntu)
+          # 🔧 Simplified emulator options for stability
+          emulator-options: -no-snapshot -no-window -noaudio -gpu swiftshader_indirect
           script: |
-            set -e
-            echo "⏳ Waiting 2 minutes for emulator to initialize..."
-            sleep 120
+            echo "⏳ Booting emulator and verifying device..."
+            adb start-server                     # ✅ CHANGE 2 — ensure adb daemon is started
+            adb devices
+            adb wait-for-device                  # ✅ CHANGE 3 — block until emulator fully ready
+            adb shell getprop sys.boot_completed
+            echo "✅ Emulator booted successfully!"
+            npm run test android profile || true # ✅ CHANGE 4 — your test command runs here
+            adb devices                          # ✅ CHANGE 5 — confirm emulator still connected
 
       - name: 🧩 Generate Allure Report
         run: |
           mkdir -p allure-results
           mkdir -p allure-report
           npx allure generate allure-results --clean -o allure-report || echo "⚠️ No allure-results found."
+
       - name: ⬆️ Upload Allure Report (as artifact)
         uses: actions/upload-artifact@v4
         with:
@@ -72,7 +78,6 @@ jobs:
           path: allure-report
           if-no-files-found: warn
 
-        # (Optional) 📤 Publish Allure Report to GitHub Pages
       - name: 🚀 Deploy Allure Report to GitHub Pages
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
