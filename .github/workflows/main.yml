@@ -45,25 +45,38 @@ jobs:
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33
-          target: google_apis
+          api-level: 30                # ✅ CHANGE 1 — API 30 is most stable on GitHub runners
+          target: google_apis          # ✅ CHANGE 2 — must use google_apis image
           arch: x86_64
           force-avd-creation: true
           avd-name: test
           disable-animations: true
-          emulator-boot-timeout: 600000
-          # 🔧 Removed disable-linux-hw-accel (causes failures on ubuntu)
-          # 🔧 Simplified emulator options for stability
-          emulator-options: -no-snapshot -no-window -noaudio -gpu swiftshader_indirect
+          emulator-boot-timeout: 800000
+          # ✅ CHANGE 3 — Use these emulator options for stable headless boot
+          emulator-options: -no-snapshot -noaudio -no-window -gpu swiftshader_indirect
+          # ✅ CHANGE 4 — Remove disable-linux-hw-accel (it breaks emulator on ubuntu)
           script: |
-            echo "⏳ Booting emulator and verifying device..."
-            adb start-server                     # ✅ CHANGE 2 — ensure adb daemon is started
-            adb devices
-            adb wait-for-device                  # ✅ CHANGE 3 — block until emulator fully ready
-            adb shell getprop sys.boot_completed
-            echo "✅ Emulator booted successfully!"
-            npm run test android profile || true # ✅ CHANGE 4 — your test command runs here
-            adb devices                          # ✅ CHANGE 5 — confirm emulator still connected
+            echo "⏳ Starting emulator and waiting for full boot..."
+            adb wait-for-device
+            boot_completed=""
+            retries=0
+            while [ -z "$boot_completed" ] && [ $retries -lt 60 ]; do
+              boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+              if [ "$boot_completed" = "1" ]; then
+                echo "✅ Emulator boot completed!"
+                break
+              fi
+              echo "⏳ Waiting for boot to complete... ($retries/60)"
+              sleep 10
+              retries=$((retries+1))
+            done
+            if [ "$boot_completed" != "1" ]; then
+              echo "❌ Emulator failed to boot after waiting. Dumping logcat..."
+              adb logcat -d | tail -n 50
+              exit 1
+            fi
+            echo "📱 Running Android tests..."
+            npm run test android profile || true
 
       - name: 🧩 Generate Allure Report
         run: |
