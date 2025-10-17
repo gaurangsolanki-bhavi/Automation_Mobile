@@ -45,7 +45,7 @@ jobs:
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30                     # Stable on GitHub runners
+          api-level: 33                     # Stable on GitHub runners
           target: google_apis
           arch: x86_64
           force-avd-creation: true
