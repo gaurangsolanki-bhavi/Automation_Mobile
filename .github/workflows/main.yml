@@ -45,18 +45,16 @@ jobs:
       - name: Launch Emulator & Run Android Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30                # ✅ CHANGE 1 — API 30 is most stable on GitHub runners
-          target: google_apis          # ✅ CHANGE 2 — must use google_apis image
+          api-level: 30                     # Stable on GitHub runners
+          target: google_apis
           arch: x86_64
           force-avd-creation: true
           avd-name: test
-          disable-animations: true
+          disable-animations: true         # Runner disables animations
           emulator-boot-timeout: 800000
-          # ✅ CHANGE 3 — Use these emulator options for stable headless boot
-          emulator-options: -no-snapshot -noaudio -no-window -gpu swiftshader_indirect
-          # ✅ CHANGE 4 — Remove disable-linux-hw-accel (it breaks emulator on ubuntu)
+          emulator-options: -no-window -noaudio -gpu swiftshader_indirect
           script: |
-            echo "⏳ Starting emulator and waiting for full boot..."
+            echo "⏳ Starting emulator..."
             adb wait-for-device
             boot_completed=""
             retries=0
